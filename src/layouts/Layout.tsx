@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-const LayoutAboutUs = () => {
+const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
       <div className="flex-grow min-h-screen">
@@ -10,4 +10,4 @@ const LayoutAboutUs = () => {
   );
 };
 
-export default LayoutAboutUs;
+export default Layout;
