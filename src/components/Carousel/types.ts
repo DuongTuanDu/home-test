@@ -22,6 +22,8 @@ export interface CarouselProps {
   cardHeight?: number;
   /** Có cho phép click mở landing_page không. Mặc định true */
   clickable?: boolean;
+  /** Nhãn đọc cho screen reader. Mặc định "Carousel" */
+  ariaLabel?: string;
   /** className bổ sung cho container */
   className?: string;
 }

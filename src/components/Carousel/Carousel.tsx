@@ -21,6 +21,7 @@ export function Carousel({
   cardWidth = CARD_WIDTH,
   cardHeight = CARD_HEIGHT,
   clickable = true,
+  ariaLabel = "Carousel",
   className = "",
 }: CarouselProps) {
   const count = slides.length;
@@ -195,6 +196,9 @@ export function Carousel({
   return (
     <div style={{ width: viewportWidth, maxWidth: "100%" }}>
     <div
+      role="region"
+      aria-roledescription="carousel"
+      aria-label={ariaLabel}
       className={`relative overflow-hidden select-none ${className}`}
       style={{
         width: viewportWidth,
