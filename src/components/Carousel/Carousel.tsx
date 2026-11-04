@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CarouselArrows } from "./CarouselArrows";
+import { CarouselDots } from "./CarouselDots";
 import type { CarouselProps, CarouselSlide } from "./types";
 
 const DEFAULT_GAP = 16;
@@ -163,6 +164,7 @@ export function Carousel({
   }
 
   return (
+    <div style={{ width: viewportWidth, maxWidth: "100%" }}>
     <div
       className={`relative overflow-hidden select-none ${className}`}
       style={{
@@ -230,6 +232,13 @@ export function Carousel({
           </div>
         ))}
       </div>
+      </div>
+      <CarouselDots
+        count={count}
+        index={index}
+        clones={clones}
+        onSelect={goTo}
+      />
     </div>
   );
 }
