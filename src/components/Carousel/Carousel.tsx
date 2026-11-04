@@ -248,11 +248,14 @@ export function Carousel({
         onPointerLeave={handlePointerLeave}
         onTransitionEnd={handleTransitionEnd}
       >
-        {extendedSlides.map((slide, i) => (
+        {extendedSlides.map((slide, i) => {
+          const isClone = i < clones || i >= clones + count;
+          return (
           <div
             key={`${slide.id}-${i}`}
             role="button"
-            tabIndex={0}
+            tabIndex={isClone ? -1 : 0}
+            aria-hidden={isClone || undefined}
             onClick={() => handleCardClick(slide)}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
@@ -280,7 +283,8 @@ export function Carousel({
               {slide.title}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
       </div>
       <CarouselDots
