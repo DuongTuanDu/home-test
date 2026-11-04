@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "@tailwindcss/line-clamp": "^0.4.4",
@@ -34,6 +35,10 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
     "@types/crypto-js": "^4.2.2",
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.5.2",
@@ -46,6 +51,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.4.0",
     "init": "^0.1.2",
+    "jsdom": "^30.1.3",
     "npx": "^10.2.2",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.1",
@@ -53,6 +59,7 @@
     "tw-animate-css": "^1.3.8",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.44.0",
-    "vite": "^7.1.7"
+    "vite": "^7.1.7",
+    "vitest": "^5.1.0"
   }
 }
