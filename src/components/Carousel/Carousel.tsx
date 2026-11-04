@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CarouselArrows } from "./CarouselArrows";
 import type { CarouselProps, CarouselSlide } from "./types";
 
 const DEFAULT_GAP = 16;
@@ -163,7 +164,7 @@ export function Carousel({
 
   return (
     <div
-      className={`overflow-hidden select-none ${className}`}
+      className={`relative overflow-hidden select-none ${className}`}
       style={{
         width: viewportWidth,
         height: viewportHeight,
@@ -172,6 +173,7 @@ export function Carousel({
       onPointerEnter={() => setIsPaused(true)}
       onPointerLeave={() => setIsPaused(false)}
     >
+      <CarouselArrows onPrev={goPrev} onNext={goNext} />
       <div
         ref={trackRef}
         className="flex h-full"
