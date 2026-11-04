@@ -43,6 +43,7 @@ export function Carousel({
   const [isHidden, setIsHidden] = useState(
     () => document.visibilityState === "hidden",
   );
+  const [hasFocus, setHasFocus] = useState(false);
   const [noTransition, setNoTransition] = useState(false);
   const startXRef = useRef(0);
   const hasDraggedRef = useRef(false);
@@ -87,7 +88,8 @@ export function Carousel({
       autoPlayInterval <= 0 ||
       isPaused ||
       isDragging ||
-      isHidden
+      isHidden ||
+      hasFocus
     ) {
       if (autoPlayRef.current) {
         clearInterval(autoPlayRef.current);
@@ -101,7 +103,16 @@ export function Carousel({
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
-  }, [count, autoPlayInterval, isPaused, isDragging, isHidden, index, goNext]);
+  }, [
+    count,
+    autoPlayInterval,
+    isPaused,
+    isDragging,
+    isHidden,
+    hasFocus,
+    index,
+    goNext,
+  ]);
 
   const handleTransitionEnd = useCallback(
     (e: React.TransitionEvent) => {
@@ -192,6 +203,13 @@ export function Carousel({
       }}
       onPointerEnter={() => setIsPaused(true)}
       onPointerLeave={() => setIsPaused(false)}
+      onFocus={() => setHasFocus(true)}
+      onBlur={(e) => {
+        // Focus chuyển giữa các thẻ trong carousel thì vẫn giữ trạng thái dừng
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+          setHasFocus(false);
+        }
+      }}
     >
       <CarouselArrows onPrev={goPrev} onNext={goNext} />
       <div
