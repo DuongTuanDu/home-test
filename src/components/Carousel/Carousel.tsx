@@ -40,6 +40,9 @@ export function Carousel({
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isHidden, setIsHidden] = useState(
+    () => document.visibilityState === "hidden",
+  );
   const [noTransition, setNoTransition] = useState(false);
   const startXRef = useRef(0);
   const hasDraggedRef = useRef(false);
@@ -69,8 +72,23 @@ export function Carousel({
   const goNext = useCallback(() => step(1), [step]);
   const goPrev = useCallback(() => step(-1), [step]);
 
+  // Tab bị ẩn thì trình duyệt throttle timer; dừng hẳn rồi chạy lại khi tab hiện
   useEffect(() => {
-    if (count < 3 || autoPlayInterval <= 0 || isPaused || isDragging) {
+    const onVisibilityChange = () =>
+      setIsHidden(document.visibilityState === "hidden");
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, []);
+
+  useEffect(() => {
+    if (
+      count < 3 ||
+      autoPlayInterval <= 0 ||
+      isPaused ||
+      isDragging ||
+      isHidden
+    ) {
       if (autoPlayRef.current) {
         clearInterval(autoPlayRef.current);
         autoPlayRef.current = null;
@@ -83,7 +101,7 @@ export function Carousel({
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
-  }, [count, autoPlayInterval, isPaused, isDragging, index, goNext]);
+  }, [count, autoPlayInterval, isPaused, isDragging, isHidden, index, goNext]);
 
   const handleTransitionEnd = useCallback(
     (e: React.TransitionEvent) => {
