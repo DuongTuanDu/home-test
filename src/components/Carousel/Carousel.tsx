@@ -46,6 +46,9 @@ export function Carousel({
   );
   const [hasFocus, setHasFocus] = useState(false);
   const [noTransition, setNoTransition] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
   const startXRef = useRef(0);
   const hasDraggedRef = useRef(false);
   const dragBlockClickUntilRef = useRef(0);
@@ -84,13 +87,28 @@ export function Carousel({
   }, []);
 
   useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  // Không có transition thì transitionend không bắn → tự nhảy khỏi vùng clone
+  useEffect(() => {
+    if (!reducedMotion || count < 3) return;
+    if (index < clones) goTo(index + count, false);
+    else if (index >= clones + count) goTo(index - count, false);
+  }, [reducedMotion, index, clones, count, goTo]);
+
+  useEffect(() => {
     if (
       count < 3 ||
       autoPlayInterval <= 0 ||
       isPaused ||
       isDragging ||
       isHidden ||
-      hasFocus
+      hasFocus ||
+      reducedMotion
     ) {
       if (autoPlayRef.current) {
         clearInterval(autoPlayRef.current);
@@ -111,6 +129,7 @@ export function Carousel({
     isDragging,
     isHidden,
     hasFocus,
+    reducedMotion,
     index,
     goNext,
   ]);
@@ -236,7 +255,7 @@ export function Carousel({
           userSelect: "none",
           transform: `translate3d(${translateX}px, 0, 0)`,
           transition:
-            noTransition || isDragging
+            noTransition || isDragging || reducedMotion
               ? "none"
             : "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           willChange: "transform",
