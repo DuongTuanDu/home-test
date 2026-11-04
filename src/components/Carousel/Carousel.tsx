@@ -22,12 +22,19 @@ export function Carousel({
   className = "",
 }: CarouselProps) {
   const count = slides.length;
-  const extendedSlides: CarouselSlide[] =
-    count >= 3 ? [slides[count - 1], ...slides, slides[0]] : [];
-  const total = extendedSlides.length;
   const slideStep = cardWidth + gap;
+  // Số thẻ clone mỗi đầu: phải đủ lấp đầy viewport, nếu không cuối track sẽ trống rồi mới "nhảy"
+  const clones =
+    count >= 3
+      ? Math.min(count, Math.ceil(viewportWidth / slideStep) + 1)
+      : 0;
+  const extendedSlides: CarouselSlide[] =
+    count >= 3
+      ? [...slides.slice(count - clones), ...slides, ...slides.slice(0, clones)]
+      : [];
+  const total = extendedSlides.length;
 
-  const [index, setIndex] = useState(1);
+  const [index, setIndex] = useState(clones);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -51,16 +58,17 @@ export function Carousel({
     setIndex(nextIndex);
   }, []);
 
-  const goNext = useCallback(() => {
-    goTo(index + 1, true);
-  }, [index, goTo]);
+  // Clamp để bấm/kéo nhanh liên tiếp không đẩy index ra ngoài track
+  const step = useCallback(
+    (dir: 1 | -1) => goTo(Math.max(0, Math.min(total - 1, index + dir))),
+    [index, total, goTo],
+  );
 
-  const goPrev = useCallback(() => {
-    goTo(index - 1, true);
-  }, [index, goTo]);
+  const goNext = useCallback(() => step(1), [step]);
+  const goPrev = useCallback(() => step(-1), [step]);
 
   useEffect(() => {
-    if (count < 3 || autoPlayInterval <= 0 || isPaused) {
+    if (count < 3 || autoPlayInterval <= 0 || isPaused || isDragging) {
       if (autoPlayRef.current) {
         clearInterval(autoPlayRef.current);
         autoPlayRef.current = null;
@@ -73,15 +81,21 @@ export function Carousel({
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
-  }, [count, autoPlayInterval, isPaused, index, goNext]);
+  }, [count, autoPlayInterval, isPaused, isDragging, index, goNext]);
 
-  const handleTransitionEnd = useCallback(() => {
-    if (index === 0) {
-      goTo(count, false);
-    } else if (index === total - 1) {
-      goTo(1, false);
-    }
-  }, [index, count, total, goTo]);
+  const handleTransitionEnd = useCallback(
+    (e: React.TransitionEvent) => {
+      // Bỏ qua transition bubble lên từ thẻ con (hover opacity...)
+      if (e.target !== e.currentTarget || e.propertyName !== "transform") return;
+      // Vùng clone giống hệt vùng thật dịch đi `count` thẻ → nhảy không thấy được
+      if (index < clones) {
+        goTo(index + count, false);
+      } else if (index >= clones + count) {
+        goTo(index - count, false);
+      }
+    },
+    [index, clones, count, goTo],
+  );
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
@@ -167,8 +181,9 @@ export function Carousel({
           touchAction: "pan-y",
           userSelect: "none",
           transform: `translate3d(${translateX}px, 0, 0)`,
-          transition: noTransition
-            ? "none"
+          transition:
+            noTransition || isDragging
+              ? "none"
             : "transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
           willChange: "transform",
         }}
