@@ -205,6 +205,16 @@ export function Carousel({
         height: viewportHeight,
         maxWidth: "100%",
       }}
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          goPrev();
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          goNext();
+        }
+      }}
       onPointerEnter={() => setIsPaused(true)}
       onPointerLeave={() => setIsPaused(false)}
       onFocus={() => setHasFocus(true)}
